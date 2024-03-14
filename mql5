@@ -1,0 +1,129 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                   Alert System                  |
+//|                                   Developer's Site: forexroboteasy.com |
+//|                                   Development: Forex Robot Easy Team |
+//+------------------------------------------------------------------+
+
+// Global variables
+int lineColor = clrRed; // Default line color
+int lineStyle = STYLE_SOLID; // Default line style
+int lineWidth = 1; // Default line width
+string alertText = ''; // Default alert text
+
+//+------------------------------------------------------------------+
+//| Customizable alert options                                       |
+//+------------------------------------------------------------------+
+void SetAlertOptions(int color, int style, int width, string text)
+{
+    lineColor = color;
+    lineStyle = style;
+    lineWidth = width;
+    alertText = text;
+}
+
+//+------------------------------------------------------------------+
+//| Customizable alert creation                                      |
+//+------------------------------------------------------------------+
+void CreateAlert(double price, string symbol)
+{
+    ObjectCreate(0, 'AlertLine', OBJ_HLINE, 0, price);
+    ObjectSetInteger(0, 'AlertLine', OBJPROP_COLOR, lineColor);
+    ObjectSetInteger(0, 'AlertLine', OBJPROP_STYLE, lineStyle);
+    ObjectSetInteger(0, 'AlertLine', OBJPROP_WIDTH, lineWidth);
+    ObjectSetString(0, 'AlertLine', OBJPROP_TEXT, alertText);
+    ObjectSetInteger(0, 'AlertLine', OBJPROP_HIDDEN, true);
+    
+    Alert(symbol + ' - Alert Created at Price: ' + DoubleToString(price, _Digits));
+}
+
+//+------------------------------------------------------------------+
+//| Alert activation                                                  |
+//+------------------------------------------------------------------+
+bool IsAlertTriggered(double price)
+{
+    int totalLines = ObjectsTotal();
+    
+    for (int i = 0; i < totalLines; i++)
+    {
+        if (ObjectGetInteger(0, 'AlertLine', OBJPROP_PRICE1) == price)
+        {
+            ObjectSetInteger(0, 'AlertLine', OBJPROP_HIDDEN, false);
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+//+------------------------------------------------------------------+
+//| Alert notification                                                |
+//+------------------------------------------------------------------+
+void SendAlertNotification(string method)
+{
+    if (method == 'email')
+    {
+        SendMail('Alert Triggered', 'An alert has been triggered on your trading platform.');
+    }
+    else if (method == 'sms')
+    {
+        // Send SMS notification using your preferred SMS gateway
+    }
+}
+
+//+------------------------------------------------------------------+
+//| Alert management                                                  |
+//+------------------------------------------------------------------+
+void ManageAlert(string action)
+{
+    int totalLines = ObjectsTotal();
+    
+    for (int i = 0; i < totalLines; i++)
+    {
+        if (action == 'edit')
+        {
+            // Edit the alert line properties
+            ObjectSetInteger(0, 'AlertLine', OBJPROP_COLOR, lineColor);
+            ObjectSetInteger(0, 'AlertLine', OBJPROP_STYLE, lineStyle);
+            ObjectSetInteger(0, 'AlertLine', OBJPROP_WIDTH, lineWidth);
+            ObjectSetString(0, 'AlertLine', OBJPROP_TEXT, alertText);
+        }
+        else if (action == 'delete')
+        {
+            // Delete the alert line
+            ObjectDelete(0, 'AlertLine');
+        }
+        else if (action == 'enable')
+        {
+            // Enable the alert line
+            ObjectSetInteger(0, 'AlertLine', OBJPROP_HIDDEN, true);
+        }
+        else if (action == 'disable')
+        {
+            // Disable the alert line
+            ObjectSetInteger(0, 'AlertLine', OBJPROP_HIDDEN, false);
+        }
+    }
+}
+
+//+------------------------------------------------------------------+
+//| Usage example                                                     |
+//+------------------------------------------------------------------+
+void OnStart()
+{
+    // Set alert options
+    SetAlertOptions(clrBlue, STYLE_DASH, 2, 'Custom Alert Text');
+    
+    // Create alert
+    CreateAlert(1.2000, Symbol());
+    
+    // Check if alert is triggered
+    if (IsAlertTriggered(1.2000))
+    {
+        // Send notification
+        SendAlertNotification('email');
+    }
+    
+    // Manage alert
+    ManageAlert('edit');
+}
